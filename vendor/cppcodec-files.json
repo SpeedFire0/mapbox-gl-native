@@ -1,0 +1,32 @@
+{
+    "//": "This file is generated. Do not edit. Regenerate it with scripts/generate-file-lists.js",
+    "sources": [],
+    "public_headers": {
+        "cppcodec/base32_crockford.hpp": "vendor/cppcodec/cppcodec/base32_crockford.hpp",
+        "cppcodec/base32_default_crockford.hpp": "vendor/cppcodec/cppcodec/base32_default_crockford.hpp",
+        "cppcodec/base32_default_hex.hpp": "vendor/cppcodec/cppcodec/base32_default_hex.hpp",
+        "cppcodec/base32_default_rfc4648.hpp": "vendor/cppcodec/cppcodec/base32_default_rfc4648.hpp",
+        "cppcodec/base32_hex.hpp": "vendor/cppcodec/cppcodec/base32_hex.hpp",
+        "cppcodec/base32_rfc4648.hpp": "vendor/cppcodec/cppcodec/base32_rfc4648.hpp",
+        "cppcodec/base64_default_rfc4648.hpp": "vendor/cppcodec/cppcodec/base64_default_rfc4648.hpp",
+        "cppcodec/base64_default_url.hpp": "vendor/cppcodec/cppcodec/base64_default_url.hpp",
+        "cppcodec/base64_default_url_unpadded.hpp": "vendor/cppcodec/cppcodec/base64_default_url_unpadded.hpp",
+        "cppcodec/base64_rfc4648.hpp": "vendor/cppcodec/cppcodec/base64_rfc4648.hpp",
+        "cppcodec/base64_url.hpp": "vendor/cppcodec/cppcodec/base64_url.hpp",
+        "cppcodec/base64_url_unpadded.hpp": "vendor/cppcodec/cppcodec/base64_url_unpadded.hpp",
+        "cppcodec/data/access.hpp": "vendor/cppcodec/cppcodec/data/access.hpp",
+        "cppcodec/data/raw_result_buffer.hpp": "vendor/cppcodec/cppcodec/data/raw_result_buffer.hpp",
+        "cppcodec/detail/base32.hpp": "vendor/cppcodec/cppcodec/detail/base32.hpp",
+        "cppcodec/detail/base64.hpp": "vendor/cppcodec/cppcodec/detail/base64.hpp",
+        "cppcodec/detail/codec.hpp": "vendor/cppcodec/cppcodec/detail/codec.hpp",
+        "cppcodec/detail/config.hpp": "vendor/cppcodec/cppcodec/detail/config.hpp",
+        "cppcodec/detail/hex.hpp": "vendor/cppcodec/cppcodec/detail/hex.hpp",
+        "cppcodec/detail/stream_codec.hpp": "vendor/cppcodec/cppcodec/detail/stream_codec.hpp",
+        "cppcodec/hex_default_lower.hpp": "vendor/cppcodec/cppcodec/hex_default_lower.hpp",
+        "cppcodec/hex_default_upper.hpp": "vendor/cppcodec/cppcodec/hex_default_upper.hpp",
+        "cppcodec/hex_lower.hpp": "vendor/cppcodec/cppcodec/hex_lower.hpp",
+        "cppcodec/hex_upper.hpp": "vendor/cppcodec/cppcodec/hex_upper.hpp",
+        "cppcodec/parse_error.hpp": "vendor/cppcodec/cppcodec/parse_error.hpp"
+    },
+    "private_headers": {}
+}

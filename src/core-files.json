@@ -463,6 +463,7 @@
         "mbgl/util/exception.hpp": "include/mbgl/util/exception.hpp",
         "mbgl/util/expected.hpp": "include/mbgl/util/expected.hpp",
         "mbgl/util/feature.hpp": "include/mbgl/util/feature.hpp",
+        "mbgl/util/filesystem.hpp": "include/mbgl/util/filesystem.hpp",
         "mbgl/util/font_stack.hpp": "include/mbgl/util/font_stack.hpp",
         "mbgl/util/geo.hpp": "include/mbgl/util/geo.hpp",
         "mbgl/util/geojson.hpp": "include/mbgl/util/geojson.hpp",

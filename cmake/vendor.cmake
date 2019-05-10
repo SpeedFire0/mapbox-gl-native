@@ -6,6 +6,7 @@ execute_process(
 include(${CMAKE_SOURCE_DIR}/vendor/benchmark.cmake)
 include(${CMAKE_SOURCE_DIR}/vendor/boost.cmake)
 include(${CMAKE_SOURCE_DIR}/vendor/cheap-ruler-cpp.cmake)
+include(${CMAKE_SOURCE_DIR}/vendor/cppcodec.cmake)
 include(${CMAKE_SOURCE_DIR}/vendor/earcut.hpp.cmake)
 include(${CMAKE_SOURCE_DIR}/vendor/eternal.cmake)
 include(${CMAKE_SOURCE_DIR}/vendor/expected.cmake)
