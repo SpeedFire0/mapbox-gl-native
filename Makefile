@@ -370,6 +370,14 @@ glfw-app: $(LINUX_BUILD)
 run-glfw-app: glfw-app
 	cd $(LINUX_OUTPUT_PATH) && ./mbgl-glfw
 
+.PHONY: mapbox-glfw-app
+mapbox-glfw-app: $(LINUX_BUILD)
+	$(NINJA) $(NINJA_ARGS) -j$(JOBS) -C $(LINUX_OUTPUT_PATH) mapbox-glfw-app
+
+.PHONY: run-mapbox-glfw-app
+run-mapbox-glfw-app: mapbox-glfw-app
+	cd $(LINUX_OUTPUT_PATH) && ./mapbox-glfw-app
+
 .PHONY: node
 node: $(LINUX_BUILD)
 	$(NINJA) $(NINJA_ARGS) -j$(JOBS) -C $(LINUX_OUTPUT_PATH) mbgl-node.active

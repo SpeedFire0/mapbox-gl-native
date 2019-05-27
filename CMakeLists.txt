@@ -194,6 +194,10 @@ if(COMMAND mbgl_platform_glfw)
     include(cmake/glfw.cmake)
 endif()
 
+if(COMMAND mapbox_glfw_app)
+    include(cmake/mapbox-glfw-app.cmake)
+endif()
+
 if(COMMAND mbgl_platform_render)
     include(cmake/render.cmake)
 endif()

@@ -99,7 +99,6 @@ macro(mbgl_platform_core)
     endif()
 endmacro()
 
-
 macro(mbgl_filesource)
     # Modify platform/linux/filesource-files.json to change the source files for this target.
     target_sources_from_file(mbgl-filesource PRIVATE platform/linux/filesource-files.json)
@@ -127,6 +126,34 @@ macro(mbgl_platform_glfw)
     )
 endmacro()
 
+macro(mapbox_glfw_app)
+    target_sources(mbgl-core
+        # Snapshotting
+        PRIVATE src/mapbox/map/map.cpp
+        PRIVATE src/mapbox/map/map_impl.cpp
+        PRIVATE src/mapbox/map/renderer_backend.cpp
+        PRIVATE src/mapbox/map/scheduler.cpp
+    )
+
+    target_include_directories(mbgl-core
+        PRIVATE include
+        PRIVATE include/mapbox/
+        PRIVATE include/mapbox/map
+        PRIVATE src/
+    )
+
+    target_link_libraries(mapbox-glfw-app
+        PRIVATE mbgl-filesource
+        PRIVATE mbgl-loop-uv
+    )
+
+    add_custom_command(
+        TARGET mapbox-glfw-app POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+                ${CMAKE_SOURCE_DIR}/misc/ca-bundle.crt
+                ${CMAKE_CURRENT_BINARY_DIR}/ca-bundle.crt
+    )
+endmacro()
 
 macro(mbgl_platform_render)
     target_link_libraries(mbgl-render
