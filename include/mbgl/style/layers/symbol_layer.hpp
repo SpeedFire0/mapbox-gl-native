@@ -106,6 +106,10 @@ public:
     const PropertyValue<bool>& getTextAllowOverlap() const;
     void setTextAllowOverlap(const PropertyValue<bool>&);
 
+    static PropertyValue<bool> getDefaultTextAllowVerticalPlacement();
+    const PropertyValue<bool>& getTextAllowVerticalPlacement() const;
+    void setTextAllowVerticalPlacement(const PropertyValue<bool>&);
+
     static PropertyValue<SymbolAnchorType> getDefaultTextAnchor();
     const PropertyValue<SymbolAnchorType>& getTextAnchor() const;
     void setTextAnchor(const PropertyValue<SymbolAnchorType>&);

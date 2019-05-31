@@ -381,6 +381,22 @@ void SymbolLayer::setTextAllowOverlap(const PropertyValue<bool>& value) {
     baseImpl = std::move(impl_);
     observer->onLayerChanged(*this);
 }
+PropertyValue<bool> SymbolLayer::getDefaultTextAllowVerticalPlacement() {
+    return TextAllowVerticalPlacement::defaultValue();
+}
+
+const PropertyValue<bool>& SymbolLayer::getTextAllowVerticalPlacement() const {
+    return impl().layout.get<TextAllowVerticalPlacement>();
+}
+
+void SymbolLayer::setTextAllowVerticalPlacement(const PropertyValue<bool>& value) {
+    if (value == getTextAllowVerticalPlacement())
+        return;
+    auto impl_ = mutableImpl();
+    impl_->layout.get<TextAllowVerticalPlacement>() = value;
+    baseImpl = std::move(impl_);
+    observer->onLayerChanged(*this);
+}
 PropertyValue<SymbolAnchorType> SymbolLayer::getDefaultTextAnchor() {
     return TextAnchor::defaultValue();
 }
@@ -1367,6 +1383,7 @@ optional<Error> SymbolLayer::setLayoutProperty(const std::string& name, const Co
         SymbolSpacing,
         SymbolZOrder,
         TextAllowOverlap,
+        TextAllowVerticalPlacement,
         TextAnchor,
         TextField,
         TextFont,
@@ -1409,6 +1426,7 @@ optional<Error> SymbolLayer::setLayoutProperty(const std::string& name, const Co
         { "symbol-spacing", static_cast<uint8_t>(Property::SymbolSpacing) },
         { "symbol-z-order", static_cast<uint8_t>(Property::SymbolZOrder) },
         { "text-allow-overlap", static_cast<uint8_t>(Property::TextAllowOverlap) },
+        { "text-allow-vertical-placement", static_cast<uint8_t>(Property::TextAllowVerticalPlacement) },
         { "text-anchor", static_cast<uint8_t>(Property::TextAnchor) },
         { "text-field", static_cast<uint8_t>(Property::TextField) },
         { "text-font", static_cast<uint8_t>(Property::TextFont) },
@@ -1439,7 +1457,7 @@ optional<Error> SymbolLayer::setLayoutProperty(const std::string& name, const Co
     auto property = static_cast<Property>(it->second);
 
         
-    if (property == Property::IconAllowOverlap || property == Property::IconIgnorePlacement || property == Property::IconKeepUpright || property == Property::IconOptional || property == Property::SymbolAvoidEdges || property == Property::TextAllowOverlap || property == Property::TextIgnorePlacement || property == Property::TextKeepUpright || property == Property::TextOptional) {
+    if (property == Property::IconAllowOverlap || property == Property::IconIgnorePlacement || property == Property::IconKeepUpright || property == Property::IconOptional || property == Property::SymbolAvoidEdges || property == Property::TextAllowOverlap || property == Property::TextAllowVerticalPlacement || property == Property::TextIgnorePlacement || property == Property::TextKeepUpright || property == Property::TextOptional) {
         Error error;
         optional<PropertyValue<bool>> typedValue = convert<PropertyValue<bool>>(value, error, false, false);
         if (!typedValue) {
@@ -1473,6 +1491,11 @@ optional<Error> SymbolLayer::setLayoutProperty(const std::string& name, const Co
         
         if (property == Property::TextAllowOverlap) {
             setTextAllowOverlap(*typedValue);
+            return nullopt;
+        }
+        
+        if (property == Property::TextAllowVerticalPlacement) {
+            setTextAllowVerticalPlacement(*typedValue);
             return nullopt;
         }
         

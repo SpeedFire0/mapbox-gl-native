@@ -114,6 +114,11 @@ struct TextAllowOverlap : LayoutProperty<bool> {
     static bool defaultValue() { return false; }
 };
 
+struct TextAllowVerticalPlacement : LayoutProperty<bool> {
+    static constexpr const char *name() { return "text-allow-vertical-placement"; }
+    static bool defaultValue() { return false; }
+};
+
 struct TextAnchor : DataDrivenLayoutProperty<SymbolAnchorType> {
     static constexpr const char *name() { return "text-anchor"; }
     static SymbolAnchorType defaultValue() { return SymbolAnchorType::Center; }
@@ -294,6 +299,7 @@ class SymbolLayoutProperties : public Properties<
     SymbolSpacing,
     SymbolZOrder,
     TextAllowOverlap,
+    TextAllowVerticalPlacement,
     TextAnchor,
     TextField,
     TextFont,
