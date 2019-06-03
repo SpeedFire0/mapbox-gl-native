@@ -21,5 +21,26 @@ std::string lowercase(const std::string& str) {
     return jni::Make<std::string>(*env, result);
 }
 
+std::string formatNumber(double number,
+                         const std::string& localeId,
+                         const std::string& currency,
+                         uint8_t minFractionDigits,
+                         uint8_t maxFractionDigits)
+{
+    (void)number;
+    (void)localeId;
+    (void)currency;
+    (void)minFractionDigits;
+    (void)maxFractionDigits;
+
+    auto env{ android::AttachEnv() };
+    jni::Local<jni::String> localeStr = jni::Make<jni::String>(*env, localeId.c_str());
+
+    static auto toLowerCase = jni::Class<jni::StringTag>::Singleton(*env).GetMethod<jni::String()>(*env, "toLowerCase");
+    jni::Local<jni::String> value = jni::Make<jni::String>(*env, localeId.c_str());
+    auto result = value.Call(*env, toLowerCase);
+    return jni::Make<std::string>(*env, result);
+}
+
 } // namespace platform
 } // namespace mbgl

@@ -115,6 +115,8 @@ find_package(Qt5Network  REQUIRED)
 find_package(Qt5OpenGL   REQUIRED)
 find_package(Qt5Widgets  REQUIRED)
 find_package(Qt5Sql      REQUIRED)
+find_package(Qt5Qml      REQUIRED)
+find_package(Qt5Quick    REQUIRED)
 
 # Qt5 always build OpenGL ES2 which is the compatibility
 # mode. Qt5 will take care of translating the desktop
@@ -125,6 +127,8 @@ set(MBGL_QT_CORE_LIBRARIES
     PUBLIC Qt5::Core
     PUBLIC Qt5::Gui
     PUBLIC Qt5::OpenGL
+    PUBLIC Qt5::Qml
+    PUBLIC Qt5::Quick
 )
 
 set(MBGL_QT_FILESOURCE_LIBRARIES

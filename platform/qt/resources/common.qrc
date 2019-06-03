@@ -6,5 +6,6 @@
         <file>source2.geojson</file>
         <file>label-arrow.svg</file>
         <file>label-background.svg</file>
+        <file alias="FormatNumber.qml">../../../platform/qt/src/FormatNumber.qml</file>
     </qresource>
 </RCC>

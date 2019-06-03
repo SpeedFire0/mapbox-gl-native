@@ -55,6 +55,7 @@ if (NOT CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
             PRIVATE platform/qt/test/main.cpp
             PRIVATE platform/qt/test/qmapboxgl.test.cpp
             PRIVATE platform/qt/test/qmapboxgl.test.cpp
+            PRIVATE platform/qt/resources/common.qrc
         )
 
         target_include_directories(mbgl-test
