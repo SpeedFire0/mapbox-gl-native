@@ -58,6 +58,10 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
     radialTextOffset(radialTextOffset_),
     singleLine(shapedTextOrientations.singleLine) {
 
+    if (shapedTextOrientations.vertical) {
+        verticalTextCollisionFeature = CollisionFeature(line_, anchor, shapedTextOrientations.vertical, textBoxScale_, textPadding, textPlacement, indexedFeature, overscaling, rotate);
+    }
+
     // Create the quads used for rendering the icon and glyphs.
     if (shapedIcon) {
         iconQuad = getIconQuad(*shapedIcon, layout, layoutTextSize, shapedTextOrientations.horizontal);
@@ -95,6 +99,11 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
 
     // 'hasText' depends on finding at least one glyph in the shaping that's also in the GlyphPositionMap
     hasText = !rightJustifiedGlyphQuads.empty() || !centerJustifiedGlyphQuads.empty() || !leftJustifiedGlyphQuads.empty() || !verticalGlyphQuads.empty();
+}
+
+optional<size_t> SymbolInstance::getDefaultVerticalPlacedTextIndex() const {
+    if (placedVerticalTextIndex) return placedVerticalTextIndex;
+    return nullopt;
 }
 
 optional<size_t> SymbolInstance::getDefaultHorizontalPlacedTextIndex() const {

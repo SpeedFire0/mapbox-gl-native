@@ -46,6 +46,8 @@ public:
                    float radialTextOffset);
 
     optional<size_t> getDefaultHorizontalPlacedTextIndex() const;
+    optional<size_t> getDefaultVerticalPlacedTextIndex() const;
+
     Anchor anchor;
     GeometryCoordinates line;
     bool hasText;
@@ -59,6 +61,7 @@ public:
 
     optional<SymbolQuad> iconQuad;
     CollisionFeature textCollisionFeature;
+    optional<CollisionFeature> verticalTextCollisionFeature = nullopt;
     CollisionFeature iconCollisionFeature;
     WritingModeType writingModes;
     std::size_t layoutFeatureIndex; // Index into the set of features included at layout time
