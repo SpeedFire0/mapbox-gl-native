@@ -98,6 +98,7 @@ private:
     bool sdfIcons = false;
     bool iconsNeedLinear = false;
     bool sortFeaturesByY = false;
+    bool allowVerticalPlacement = false;
 
     style::TextSize::UnevaluatedType textSize;
     style::IconSize::UnevaluatedType iconSize;

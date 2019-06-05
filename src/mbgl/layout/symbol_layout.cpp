@@ -105,6 +105,7 @@ SymbolLayout::SymbolLayout(const BucketParameters& parameters,
     const bool zOrderByViewportY = symbolZOrder == SymbolZOrderType::ViewportY || (symbolZOrder == SymbolZOrderType::Auto && !sortFeaturesByKey);
     sortFeaturesByY = zOrderByViewportY && (layout.get<TextAllowOverlap>() || layout.get<IconAllowOverlap>() ||
         layout.get<TextIgnorePlacement>() || layout.get<IconIgnorePlacement>());
+    allowVerticalPlacement = layout.get<TextAllowVerticalPlacement>() && layout.get<SymbolPlacement>() == SymbolPlacementType::Point;
 
     for (const auto& layer : layers) {
         layerPaintProperties.emplace(layer->baseImpl->id, layer);
@@ -316,8 +317,20 @@ void SymbolLayout::prepareSymbols(const GlyphMap& glyphMap, const GlyphPositions
                                    layout.evaluate<TextOffset>(zoom, feature)[1] * util::ONE_EM};
                 }
             }
+
             TextJustifyType textJustify = textAlongLine ? TextJustifyType::Center : layout.evaluate<TextJustify>(zoom, feature);
-             // If this layer uses text-variable-anchor, generate shapings for all justification possibilities.
+
+            const auto addVerticalShapingForPointLabelIfNeeded = [&] {
+                if (allowVerticalPlacement) {
+                    feature.formattedText->verticalizePunctuation();
+                    // Vertical POI label placement is meant to be used for scripts that support vertical
+                    // writing mode, thus, style::TextJustifyType::Left justification is used. If Latin scripts
+                    // would need to be supported, this should take into account other justifications.
+                    shapedTextOrientations.vertical = applyShaping(*feature.formattedText, WritingModeType::Vertical, textAnchor, style::TextJustifyType::Left);
+                }
+            };
+
+            // If this layer uses text-variable-anchor, generate shapings for all justification possibilities.
             if (!textAlongLine && !variableTextAnchor.empty()) {
                 std::vector<TextJustifyType> justifications;
                 if (textJustify != TextJustifyType::Auto) {
@@ -343,16 +356,25 @@ void SymbolLayout::prepareSymbols(const GlyphMap& glyphMap, const GlyphPositions
                         }
                     }
                 }
+
+                // Vertical point label shaping if allowVerticalPlacement is enabled.
+                addVerticalShapingForPointLabelIfNeeded();
             } else {
                 if (textJustify == TextJustifyType::Auto) {
                     textJustify = getAnchorJustification(textAnchor);
                 }
+
+                // Horizontal point or line label.
                 Shaping shaping = applyShaping(*feature.formattedText, WritingModeType::Horizontal, textAnchor, textJustify);
                 if (shaping) {
                     shapedTextOrientations.horizontal = std::move(shaping);
                 }
 
-                if (util::i18n::allowsVerticalWritingMode(feature.formattedText->rawText()) && textAlongLine) {
+                // Vertical point label shaping if allowVerticalPlacement is enabled.
+                addVerticalShapingForPointLabelIfNeeded();
+
+                // Verticalized line label.
+                if (textAlongLine && util::i18n::allowsVerticalWritingMode(feature.formattedText->rawText())) {
                     feature.formattedText->verticalizePunctuation();
                     shapedTextOrientations.vertical = applyShaping(*feature.formattedText, WritingModeType::Vertical, textAnchor, textJustify);
                 }
@@ -783,6 +805,10 @@ void SymbolLayout::addToDebugBuffers(SymbolBucket& bucket) {
             }
         };
         populateCollisionBox(symbolInstance.textCollisionFeature);
+        if (allowVerticalPlacement) {
+            assert(symbolInstance.verticalTextCollisionFeature);
+            populateCollisionBox(*symbolInstance.verticalTextCollisionFeature);
+        }
         populateCollisionBox(symbolInstance.iconCollisionFeature);
     }
 }
