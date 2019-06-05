@@ -156,6 +156,8 @@ void Placement::placeBucket(
     std::vector<style::TextVariableAnchorType> variableTextAnchors = layout.get<style::TextVariableAnchor>();
     const bool rotateWithMap = layout.get<style::TextRotationAlignment>() == style::AlignmentType::Map;
     const bool pitchWithMap = layout.get<style::TextPitchAlignment>() == style::AlignmentType::Map;
+    const bool allowVerticalPlacement = bucket.layout.get<style::TextAllowVerticalPlacement>() &&
+                                        bucket.layout.get<style::SymbolPlacement>() == style::SymbolPlacementType::Point;
 
     const bool zOrderByViewportY = layout.get<style::SymbolZOrder>() == style::SymbolZOrderType::ViewportY;
 
@@ -172,21 +174,51 @@ void Placement::placeBucket(
         bool placeText = false;
         bool placeIcon = false;
         bool offscreen = true;
+        bool placedVertical = false;
         optional<size_t> horizontalTextIndex = symbolInstance.getDefaultHorizontalPlacedTextIndex();
         if (horizontalTextIndex) {
-            CollisionFeature& textCollisionFeature = symbolInstance.textCollisionFeature;
             PlacedSymbol& placedSymbol = bucket.text.placedSymbols.at(*horizontalTextIndex);
             const float fontSize = evaluateSizeForFeature(partiallyEvaluatedTextSize, placedSymbol);
+            CollisionFeature& textCollisionFeature = symbolInstance.textCollisionFeature;
+
             if (variableTextAnchors.empty()) {
-                auto placed = collisionIndex.placeFeature(textCollisionFeature, {},
-                        posMatrix, textLabelPlaneMatrix, pixelRatio,
-                        placedSymbol, scale, fontSize,
-                        layout.get<style::TextAllowOverlap>(),
-                        pitchWithMap,
-                        params.showCollisionBoxes, avoidEdges, collisionGroup.second);
+                const auto placeFeature = [&] (CollisionFeature& collisionFeature, PlacedSymbol& symbol) {
+                    return collisionIndex.placeFeature(collisionFeature, {},
+                            posMatrix, textLabelPlaneMatrix, pixelRatio,
+                            symbol, scale, fontSize,
+                            layout.get<style::TextAllowOverlap>(),
+                            pitchWithMap,
+                            params.showCollisionBoxes, avoidEdges, collisionGroup.second);
+                };
+
+                // Try placing horizontal variant first.
+                auto placed = placeFeature(symbolInstance.textCollisionFeature, placedSymbol);
+
+                // If vertical placement is enabled, try placing vertical variant if horizontal text
+                // could not be placed.
+                if (allowVerticalPlacement) {
+                    optional<size_t> verticalTextIndex = symbolInstance.getDefaultVerticalPlacedTextIndex();
+                    assert(verticalTextIndex);
+                    assert(symbolInstance.verticalTextCollisionFeature);
+                    if (!placed.first) {
+                        // Disable horizontal text variant and try placing vertical.
+                        bucket.text.placedSymbols.at(*horizontalTextIndex).crossTileID = 0u;
+                        PlacedSymbol& verticalSymbol = bucket.text.placedSymbols.at(*verticalTextIndex);
+                        placed = placeFeature(*symbolInstance.verticalTextCollisionFeature, verticalSymbol);
+                        if (placed.first) {
+                            placedVertical = true;
+                            bucket.text.placedSymbols.at(*verticalTextIndex).crossTileID = symbolInstance.crossTileID;
+                        }
+                    } else {
+                        bucket.text.placedSymbols.at(*horizontalTextIndex).crossTileID = symbolInstance.crossTileID;
+                        bucket.text.placedSymbols.at(*verticalTextIndex).crossTileID = 0u;
+                    }
+                }
+
                 placeText = placed.first;
                 offscreen &= placed.second;
             } else if (!textCollisionFeature.alongLine && !textCollisionFeature.boxes.empty()) {
+                // TODO: handle allowVerticalPlacement for text-variable-anchors
                 const CollisionBox& textBox = symbolInstance.textCollisionFeature.boxes[0];
                 const float width = textBox.x2 - textBox.x1;
                 const float height = textBox.y2 - textBox.y1;
@@ -295,7 +327,12 @@ void Placement::placeBucket(
         }
 
         if (placeText) {
-            collisionIndex.insertFeature(symbolInstance.textCollisionFeature, layout.get<style::TextIgnorePlacement>(), bucket.bucketInstanceId, collisionGroup.first);
+            if (allowVerticalPlacement && placedVertical) {
+                assert(symbolInstance.verticalTextCollisionFeature);
+                collisionIndex.insertFeature(*symbolInstance.verticalTextCollisionFeature, layout.get<style::TextIgnorePlacement>(), bucket.bucketInstanceId, collisionGroup.first);
+            } else {
+                collisionIndex.insertFeature(symbolInstance.textCollisionFeature, layout.get<style::TextIgnorePlacement>(), bucket.bucketInstanceId, collisionGroup.first);
+            }
         }
 
         if (placeIcon) {
@@ -406,6 +443,7 @@ bool Placement::updateBucketDynamicVertices(SymbolBucket& bucket, const Transfor
     using namespace style;
     const auto& layout = bucket.layout;
     const bool alongLine = layout.get<SymbolPlacement>() != SymbolPlacementType::Point;
+    const bool allowVerticalPlacement = bucket.layout.get<style::TextAllowVerticalPlacement>() && !alongLine;
     bool result = false;
 
     if (alongLine) {
@@ -494,6 +532,18 @@ bool Placement::updateBucketDynamicVertices(SymbolBucket& bucket, const Transfor
         }
 
         result = true;
+    } else if (allowVerticalPlacement && bucket.hasTextData()) {
+        bucket.text.dynamicVertices.clear();
+        for (const PlacedSymbol& symbol : bucket.text.placedSymbols) {
+            if (symbol.hidden || symbol.crossTileID == 0u) {
+                hideGlyphs(symbol.glyphOffsets.size(), bucket.text.dynamicVertices);
+            } else {
+                for (std::size_t i = 0; i < symbol.glyphOffsets.size(); ++i) {
+                    addDynamicAttributes(symbol.anchorPoint, 0, bucket.text.dynamicVertices);
+                }
+            }
+        }
+        result = true;
     }
 
     return result;
@@ -512,6 +562,8 @@ void Placement::updateBucketOpacities(SymbolBucket& bucket, const TransformState
     const bool variablePlacement = !bucket.layout.get<style::TextVariableAnchor>().empty();
     const bool rotateWithMap = bucket.layout.get<style::TextRotationAlignment>() == style::AlignmentType::Map;
     const bool pitchWithMap = bucket.layout.get<style::TextPitchAlignment>() == style::AlignmentType::Map;
+    const bool allowVerticalPlacement = bucket.layout.get<style::TextAllowVerticalPlacement>() &&
+                                        bucket.layout.get<style::SymbolPlacement>() == style::SymbolPlacementType::Point;
 
     // If allow-overlap is true, we can show symbols before placement runs on them
     // But we have to wait for placement if we potentially depend on a paired icon/text
@@ -566,11 +618,14 @@ void Placement::updateBucketOpacities(SymbolBucket& bucket, const TransformState
                 for (size_t i = 0; i < symbolInstance.verticalGlyphQuads.size() * 4; i++) {
                     bucket.text.opacityVertices.emplace_back(opacityVertex);
                 }
-                bucket.text.placedSymbols[*symbolInstance.placedVerticalTextIndex].hidden = opacityState.isHidden();
+                PlacedSymbol& placed = bucket.text.placedSymbols[*symbolInstance.placedVerticalTextIndex];
+                placed.hidden = opacityState.isHidden();
             }
 
             auto prevOffset = variableOffsets.find(symbolInstance.crossTileID);
             if (prevOffset != variableOffsets.end()) {
+                // TODO: keep type of placed symbol, horizontal / vertical, so that we can set
+                // what index to be used.
                 markUsedJustification(bucket, prevOffset->second.anchor, symbolInstance);
             }
         }
@@ -646,7 +701,12 @@ void Placement::updateBucketOpacities(SymbolBucket& bucket, const TransformState
         };
         
         if (bucket.hasCollisionBoxData()) {
+            // TODO: update collision box opacity based on selected text variant (horizontal | vertical).
             updateCollisionTextBox(symbolInstance.textCollisionFeature, opacityState.text.placed);
+            if (allowVerticalPlacement) {
+                assert(symbolInstance.verticalTextCollisionFeature);
+                updateCollisionTextBox(*symbolInstance.verticalTextCollisionFeature, opacityState.text.placed);
+            }
             updateCollisionBox(symbolInstance.iconCollisionFeature, opacityState.icon.placed);
         }
         if (bucket.hasCollisionCircleData()) {
@@ -663,6 +723,7 @@ void Placement::updateBucketOpacities(SymbolBucket& bucket, const TransformState
 }
 
 void Placement::markUsedJustification(SymbolBucket& bucket, style::TextVariableAnchorType placedAnchor, SymbolInstance& symbolInstance) {
+    // TODO: Add placedVerticalTextIndex as one of the options
     std::map<style::TextJustifyType, optional<size_t>> justificationToIndex {
                 {style::TextJustifyType::Right, symbolInstance.placedRightTextIndex},
                 {style::TextJustifyType::Center, symbolInstance.placedCenterTextIndex},
