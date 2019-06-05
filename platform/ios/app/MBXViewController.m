@@ -239,6 +239,7 @@ CLLocationCoordinate2D randomWorldCoordinate() {
     self.currentState =  [MBXStateManager sharedManager].currentState;
 
     if (!self.currentState) {
+        // Create a new state with the below default values
         self.currentState = [[MBXState alloc] init];
 
         self.mapView.showsUserHeadingIndicator = YES;
@@ -246,7 +247,19 @@ CLLocationCoordinate2D randomWorldCoordinate() {
         self.zoomLevelOrnamentEnabled = NO;
         self.frameTimeGraphEnabled = NO;
         self.debugLoggingEnabled = YES;
+    } else {
+        // Revert to the previously saved state
+        self.mapView.showsUserHeadingIndicator = self.currentState.showsUserHeadingIndicator;
+        self.mapView.showsScale = self.currentState.showsMapScale;
+        self.mapView.debugMask = self.currentState.debugMask;
+        self.zoomLevelOrnamentEnabled = self.currentState.showsZoomLevelOrnament;
+        self.hudLabel.hidden = !self.currentState.showsZoomLevelOrnament;
+        self.frameTimeGraphEnabled = self.currentState.showsTimeFrameGraph;
+        self.frameTimeGraphView.hidden = !self.currentState.showsTimeFrameGraph;
+        self.debugLoggingEnabled = self.currentState.debugLoggingEnabled;
     }
+
+    [self updateHUD];
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(saveCurrentMapState:) name:UIApplicationDidEnterBackgroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(restoreMapState:) name:UIApplicationWillEnterForegroundNotification object:nil];
@@ -369,7 +382,7 @@ CLLocationCoordinate2D randomWorldCoordinate() {
                     (debugMask & MGLMapDebugOverdrawVisualizationMask ? @"Hide" :@"Show")],
                 [NSString stringWithFormat:@"%@ zoom level ornament", (self.zoomLevelOrnamentEnabled ? @"Hide" :@"Show")],
                 [NSString stringWithFormat:@"%@ frame time graph", (self.frameTimeGraphEnabled ? @"Hide" :@"Show")],
-                [NSString stringWithFormat:@"%@ reuse queue stats", (_reuseQueueStatsEnabled ? @"Hide" :@"Show")]
+                [NSString stringWithFormat:@"%@ reuse queue stats", (self.reuseQueueStatsEnabled ? @"Hide" :@"Show")]
             ]];
             break;
         case MBXSettingsAnnotations:
@@ -482,7 +495,6 @@ CLLocationCoordinate2D randomWorldCoordinate() {
                     self.zoomLevelOrnamentEnabled = !self.zoomLevelOrnamentEnabled;
                     self.currentState.showsZoomLevelOrnament = self.zoomLevelOrnamentEnabled;
                     self.hudLabel.hidden = !self.zoomLevelOrnamentEnabled;
-
                     self.reuseQueueStatsEnabled = NO;
                     [self updateHUD];
                     break;
@@ -492,12 +504,13 @@ CLLocationCoordinate2D randomWorldCoordinate() {
                     self.frameTimeGraphEnabled = !self.frameTimeGraphEnabled;
                     self.currentState.showsTimeFrameGraph = !self.currentState.showsTimeFrameGraph;
                     self.frameTimeGraphView.hidden = !self.frameTimeGraphEnabled;
+                    [self updateHUD];
                     break;
                 }
                 case MBXSettingsDebugToolsShowReuseQueueStats:
                 {
-                    self.reuseQueueStatsEnabled = !self.reuseQueueStatsEnabled;
-                    self.hudLabel.hidden = !self.reuseQueueStatsEnabled;
+                    self.reuseQueueStatsEnabled = !self.currentState.reuseQueueStatsEnabled;
+                    self.hudLabel.hidden = !self.currentState.reuseQueueStatsEnabled;
                     self.zoomLevelOrnamentEnabled = NO;
                     [self updateHUD];
                     break;
@@ -506,6 +519,9 @@ CLLocationCoordinate2D randomWorldCoordinate() {
                     NSAssert(NO, @"All debug tools setting rows should be implemented");
                     break;
             }
+
+            self.mapView.debugMask = self.currentState.debugMask;
+            
             break;
         case MBXSettingsAnnotations:
             switch (indexPath.row)
@@ -2371,7 +2387,6 @@ CLLocationCoordinate2D randomWorldCoordinate() {
 
 - (void)mapViewDidFinishRenderingFrame:(MGLMapView *)mapView fullyRendered:(BOOL)fullyRendered {
     if (self.frameTimeGraphEnabled) {
-        NSLog(@"⏰ FRAMETIME: %@", mapView.frameTime);
         [self.frameTimeGraphView updatePathWithFrameDuration:mapView.frameTime];
     }
 }
@@ -2389,13 +2404,24 @@ CLLocationCoordinate2D randomWorldCoordinate() {
     self.currentState.showsTimeFrameGraph = self.frameTimeGraphEnabled;
     self.currentState.debugMask = self.mapView.debugMask;
     self.currentState.debugLoggingEnabled = self.debugLoggingEnabled;
+    self.currentState.reuseQueueStatsEnabled = self.reuseQueueStatsEnabled;
 
     [[MBXStateManager sharedManager] saveState:self.currentState];
-
 }
 
 - (void)restoreMapState:(__unused NSNotification *)notification {
     MBXState *currentState = [MBXStateManager sharedManager].currentState;
+
+    self.mapView.camera = currentState.camera;
+    self.mapView.showsUserLocation = currentState.showsUserLocation;
+    self.mapView.userTrackingMode = currentState.userTrackingMode;
+    self.mapView.showsUserHeadingIndicator = currentState.showsUserHeadingIndicator;
+    self.mapView.showsScale = currentState.showsMapScale;
+    self.zoomLevelOrnamentEnabled = currentState.showsZoomLevelOrnament;
+    self.frameTimeGraphEnabled = currentState.showsTimeFrameGraph;
+    self.mapView.debugMask = currentState.debugMask;
+    self.debugLoggingEnabled = currentState.debugLoggingEnabled;
+    self.reuseQueueStatsEnabled = currentState.reuseQueueStatsEnabled;
 
     self.currentState = currentState;
 }

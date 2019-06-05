@@ -25,8 +25,7 @@
     NSData *encodedMapState = [[NSUserDefaults standardUserDefaults] objectForKey:@"mapStateKey"];
     MBXState *currentState = (MBXState *)[NSKeyedUnarchiver unarchiveObjectWithData: encodedMapState];
 
-    _currentState = currentState;
-    return _currentState;
+    return currentState;
 }
 
 - (void)saveState:(MBXState*)mapState {
