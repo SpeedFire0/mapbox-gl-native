@@ -39,6 +39,7 @@ public:
     size_t vertexStartIndex;
     // The crossTileID is only filled/used on the foreground for variable text anchors
     uint32_t crossTileID = 0u;
+    float angle = 0;
 };
 
 class SymbolBucket final : public Bucket {

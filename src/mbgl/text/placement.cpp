@@ -539,7 +539,7 @@ bool Placement::updateBucketDynamicVertices(SymbolBucket& bucket, const Transfor
                 hideGlyphs(symbol.glyphOffsets.size(), bucket.text.dynamicVertices);
             } else {
                 for (std::size_t i = 0; i < symbol.glyphOffsets.size(); ++i) {
-                    addDynamicAttributes(symbol.anchorPoint, 0, bucket.text.dynamicVertices);
+                    addDynamicAttributes(symbol.anchorPoint, symbol.angle, bucket.text.dynamicVertices);
                 }
             }
         }
