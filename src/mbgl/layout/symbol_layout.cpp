@@ -465,7 +465,8 @@ void SymbolLayout::addFeature(const std::size_t layoutFeatureIndex,
                     textBoxScale, textPadding, textPlacement, textOffset,
                     iconBoxScale, iconPadding, iconOffset,
                     glyphPositions, indexedFeature, layoutFeatureIndex, feature.index,
-                    feature.formattedText ? feature.formattedText->rawText() : std::u16string(), overscaling, rotation, radialTextOffset);
+                    feature.formattedText ? feature.formattedText->rawText() : std::u16string(),
+                    overscaling, rotation, radialTextOffset, allowVerticalPlacement);
         }
     };
 

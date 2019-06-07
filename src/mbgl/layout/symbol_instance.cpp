@@ -38,7 +38,8 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
                                std::u16string key_,
                                const float overscaling,
                                const float rotate,
-                               float radialTextOffset_) :
+                               float radialTextOffset_,
+                               bool allowVerticalPlacement) :
     anchor(anchor_),
     line(line_),
     hasText(false),
@@ -58,8 +59,10 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
     radialTextOffset(radialTextOffset_),
     singleLine(shapedTextOrientations.singleLine) {
 
-    if (shapedTextOrientations.vertical) {
-        verticalTextCollisionFeature = CollisionFeature(line_, anchor, shapedTextOrientations.vertical, textBoxScale_, textPadding, textPlacement, indexedFeature, overscaling, rotate);
+    if (allowVerticalPlacement) {
+        assert(shapedTextOrientations.vertical);
+        const float verticalPointLabelAngle = 90.0f;
+        verticalTextCollisionFeature = CollisionFeature(line_, anchor, shapedTextOrientations.vertical, textBoxScale_, textPadding, textPlacement, indexedFeature, overscaling, rotate + verticalPointLabelAngle);
     }
 
     // Create the quads used for rendering the icon and glyphs.

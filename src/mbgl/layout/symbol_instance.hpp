@@ -43,7 +43,8 @@ public:
                    std::u16string key,
                    const float overscaling,
                    const float rotate,
-                   float radialTextOffset);
+                   float radialTextOffset,
+                   bool allowVerticalPlacement);
 
     optional<size_t> getDefaultHorizontalPlacedTextIndex() const;
     optional<size_t> getDefaultVerticalPlacedTextIndex() const;
