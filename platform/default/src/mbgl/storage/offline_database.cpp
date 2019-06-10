@@ -38,6 +38,7 @@ void OfflineDatabase::initialize() {
         mapbox::sqlite::Database::open(path, mapbox::sqlite::ReadWriteCreate));
     db->setBusyTimeout(Milliseconds::max());
     db->exec("PRAGMA foreign_keys = ON");
+    db->exec("PRAGMA auto_vacuum = INCREMENTAL");
 
     const auto userVersion = getPragma<int64_t>("PRAGMA user_version");
     switch (userVersion) {
