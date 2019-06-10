@@ -37,7 +37,8 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
                                const std::size_t dataFeatureIndex_,
                                std::u16string key_,
                                const float overscaling,
-                               const float rotate,
+                               const float iconRotation,
+                               const float textRotation,
                                float radialTextOffset_,
                                bool allowVerticalPlacement) :
     anchor(anchor_),
@@ -47,8 +48,8 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
 
     // Create the collision features that will be used to check whether this symbol instance can be placed
     // As a collision approximation, we can use either the vertical or any of the horizontal versions of the feature
-    textCollisionFeature(line_, anchor, getAnyShaping(shapedTextOrientations), textBoxScale_, textPadding, textPlacement, indexedFeature, overscaling, rotate),
-    iconCollisionFeature(line_, anchor, shapedIcon, iconBoxScale, iconPadding, indexedFeature, rotate),
+    textCollisionFeature(line_, anchor, getAnyShaping(shapedTextOrientations), textBoxScale_, textPadding, textPlacement, indexedFeature, overscaling, textRotation),
+    iconCollisionFeature(line_, anchor, shapedIcon, iconBoxScale, iconPadding, indexedFeature, iconRotation),
     writingModes(WritingModeType::None),
     layoutFeatureIndex(layoutFeatureIndex_),
     dataFeatureIndex(dataFeatureIndex_),
@@ -62,7 +63,7 @@ SymbolInstance::SymbolInstance(Anchor& anchor_,
     if (allowVerticalPlacement) {
         assert(shapedTextOrientations.vertical);
         const float verticalPointLabelAngle = 90.0f;
-        verticalTextCollisionFeature = CollisionFeature(line_, anchor, shapedTextOrientations.vertical, textBoxScale_, textPadding, textPlacement, indexedFeature, overscaling, rotate + verticalPointLabelAngle);
+        verticalTextCollisionFeature = CollisionFeature(line_, anchor, shapedTextOrientations.vertical, textBoxScale_, textPadding, textPlacement, indexedFeature, overscaling, textRotation + verticalPointLabelAngle);
     }
 
     // Create the quads used for rendering the icon and glyphs.

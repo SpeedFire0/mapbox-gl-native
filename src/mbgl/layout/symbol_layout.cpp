@@ -441,7 +441,8 @@ void SymbolLayout::addFeature(const std::size_t layoutFeatureIndex,
     const float textPadding = layout.get<TextPadding>() * tilePixelRatio;
     const float iconPadding = layout.get<IconPadding>() * tilePixelRatio;
     const float textMaxAngle = layout.get<TextMaxAngle>() * util::DEG2RAD;
-    const float rotation = layout.evaluate<IconRotate>(zoom, feature);
+    const float iconRotation = layout.evaluate<IconRotate>(zoom, feature);
+    const float textRotation = layout.evaluate<TextRotate>(zoom, feature);
     const float radialTextOffset = layout.evaluate<TextRadialOffset>(zoom, feature) * util::ONE_EM;
     const SymbolPlacementType textPlacement = layout.get<TextRotationAlignment>() != AlignmentType::Map
                                                   ? SymbolPlacementType::Point
@@ -466,7 +467,7 @@ void SymbolLayout::addFeature(const std::size_t layoutFeatureIndex,
                     iconBoxScale, iconPadding, iconOffset,
                     glyphPositions, indexedFeature, layoutFeatureIndex, feature.index,
                     feature.formattedText ? feature.formattedText->rawText() : std::u16string(),
-                    overscaling, rotation, radialTextOffset, allowVerticalPlacement);
+                    overscaling, iconRotation, textRotation, radialTextOffset, allowVerticalPlacement);
         }
     };
 

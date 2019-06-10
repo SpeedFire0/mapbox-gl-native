@@ -42,7 +42,8 @@ public:
                    const std::size_t dataFeatureIndex,
                    std::u16string key,
                    const float overscaling,
-                   const float rotate,
+                   const float iconRotation,
+                   const float textRotation,
                    float radialTextOffset,
                    bool allowVerticalPlacement);
 
