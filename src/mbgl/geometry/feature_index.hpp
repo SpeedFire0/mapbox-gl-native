@@ -56,7 +56,7 @@ public:
 
     const GeometryTileData* getData() { return tileData.get(); }
     
-    void insert(const GeometryCollection&, std::size_t index, const std::string& sourceLayerName, const std::string& bucketLeaderID);
+    void insert(const GeometryCollection&, std::size_t index, FeatureType, const std::string& sourceLayerName, const std::string& bucketLeaderID);
 
     void query(
             std::unordered_map<std::string, std::vector<Feature>>& result,

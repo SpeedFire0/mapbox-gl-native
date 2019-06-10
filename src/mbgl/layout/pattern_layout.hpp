@@ -109,7 +109,7 @@ public:
             GeometryCollection geometries = feature->getGeometries();
 
             bucket->addFeature(*feature, geometries, patternPositions, patterns);
-            featureIndex->insert(geometries, i, sourceLayerID, bucketLeaderID);
+            featureIndex->insert(geometries, i, feature->getType(), sourceLayerID, bucketLeaderID);
         }
         if (bucket->hasData()) {
             for (const auto& pair : layerPropertiesMap) {

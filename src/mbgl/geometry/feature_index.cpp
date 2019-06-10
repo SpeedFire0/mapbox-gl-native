@@ -23,17 +23,20 @@ FeatureIndex::FeatureIndex(std::unique_ptr<const GeometryTileData> tileData_)
 
 void FeatureIndex::insert(const GeometryCollection& geometries,
                           std::size_t index,
+                          FeatureType featureType,
                           const std::string& sourceLayerName,
                           const std::string& bucketLeaderID) {
-    auto featureSortIndex = sortIndex++;
     for (const auto& ring : geometries) {
         auto envelope = mapbox::geometry::envelope(ring);
         if (envelope.min.x < util::EXTENT &&
             envelope.min.y < util::EXTENT &&
             envelope.max.x >= 0 &&
             envelope.max.y >= 0) {
-            grid.insert(IndexedSubfeature(index, sourceLayerName, bucketLeaderID, featureSortIndex++),
+            grid.insert(IndexedSubfeature(index, sourceLayerName, bucketLeaderID, sortIndex++),
                         {convertPoint<float>(envelope.min), convertPoint<float>(envelope.max)});
+            if (featureType == FeatureType::Polygon) {
+                break; // Add only the first geometry as it contains outer polygon ring.
+            }
         }
     }
 }
@@ -67,13 +70,7 @@ void FeatureIndex::query(
     std::sort(features.begin(), features.end(), [](const IndexedSubfeature& a, const IndexedSubfeature& b) {
         return a.sortIndex > b.sortIndex;
     });
-    size_t previousSortIndex = std::numeric_limits<size_t>::max();
     for (const auto& indexedFeature : features) {
-
-        // If this feature is the same as the previous feature, skip it.
-        if (indexedFeature.sortIndex == previousSortIndex) continue;
-        previousSortIndex = indexedFeature.sortIndex;
-
         addFeature(result, indexedFeature, queryOptions, tileID.canonical, layers, queryGeometry, transformState, pixelsToTileUnits, posMatrix);
     }
 }
