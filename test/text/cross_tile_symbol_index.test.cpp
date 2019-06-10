@@ -11,7 +11,7 @@ SymbolInstance makeSymbolInstance(float x, float y, std::u16string key) {
     style::SymbolLayoutProperties::Evaluated layout_;
     IndexedSubfeature subfeature(0, "", "", 0);
     Anchor anchor(x, y, 0, 0);
-    return SymbolInstance(anchor, line, shaping, {}, layout_, 0, 0, 0, style::SymbolPlacementType::Point, {{0, 0}}, 0, 0, {{0, 0}}, positions, subfeature, 0, 0, key, 0, 0, 0.0f);
+    return SymbolInstance(anchor, line, shaping, {}, layout_, 0, 0, 0, style::SymbolPlacementType::Point, {{0, 0}}, 0, 0, {{0, 0}}, positions, subfeature, 0, 0, key, 0.0f, 0.0f, 0.0f, 0.0f, false);
 }
 
 
