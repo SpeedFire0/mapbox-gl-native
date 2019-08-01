@@ -40,7 +40,7 @@ public class GLSurfaceViewMapRenderer extends MapRenderer implements GLSurfaceVi
         // we need to ensure releasing the native renderer as well.
         // This avoids releasing it only when the view is being recreated, which is already on a new GL thread,
         // and leads to JNI crashes like https://github.com/mapbox/mapbox-gl-native/issues/14618
-        nativeReset();
+ //       nativeReset();
       }
     });
   }
